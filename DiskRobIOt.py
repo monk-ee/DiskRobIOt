@@ -20,18 +20,25 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
+
+Assumptions:
+        if the following is true:
+            iops * transfersizeinbytes = bytespersecond
+        then
+            iops = bytespersecond / transfersizeinbytes
 """
 
 import time
 import argparse
 import multiprocessing
-
+from statistics import mean, median
 
 class DiskRobIOt:
     blocksize = 64
     iterations = 100
     threads = 2
     diff = 0
+    file_size = 0
 
     def __init__(self, arg):
         try:
@@ -40,7 +47,7 @@ class DiskRobIOt:
             self.threads = int(arg.threads)
         except:
             raise
-
+        self.file_size = 1024 * self.blocksize * self.iterations
         self.output = multiprocessing.Queue()
         self.processes = [multiprocessing.Process(target=self._run, args=(x, self.output)) for x in range(int(self.threads))]
         for p in self.processes:
@@ -68,14 +75,31 @@ class DiskRobIOt:
         f.close()
 
     def _results(self):
+        print("Iterations " + str(self.iterations) + " @ " + str(self.blocksize) + 'K blocksize.')
         # now work out write data written
-        file_size = 1024 * self.blocksize * self.iterations
         for result in self.results:
-            run_speed = 1 / result
-            run = run_speed * file_size
-            mb = run / 1024 / 1024
-            print(str(mb) + ' Mb/sec with ' + str(self.blocksize) + 'K blocksize.')
+            print(str(self._calculate_mb(result)) + ' Mb/sec ' + str(self._calculate_iops(result)) + ' IOPS')
+            
+        """
+        meanie = mean(self.results)
+        print("Mean: " + str(self._calculate_mb(meanie)) + ' Mb/sec with ' + str(self.blocksize) + 'K blocksize.')
+        print("Mean: " + str(self._calculate_iops(meanie)) + ' IOPS with ' + str(self.blocksize) + 'K blocksize.')
+        medie = median(self.results)
+        print("Median: " + str(self._calculate_mb(medie)) + ' Mb/sec with ' + str(self.blocksize) + 'K blocksize.')
+        print("Median: " + str(self._calculate_iops(medie)) + ' IOPS with ' + str(self.blocksize) + 'K blocksize.')
+        """
 
+    def _calculate_mb(self, result):
+        run_speed = 1 / result
+        run = run_speed * self.file_size
+        mb = run / 1024 / 1024
+        return mb
+
+    def _calculate_iops(self, result):
+        run_speed = 1 / result
+        run = run_speed * self.file_size
+        iops = run / self.file_size
+        return iops
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A utility for testing disk io.')
