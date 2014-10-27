@@ -22,7 +22,7 @@ GNU General Public License for more details.
 
 """
 
-import timeit
+import time
 import argparse
 
 
