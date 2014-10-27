@@ -26,6 +26,8 @@ Assumptions:
             iops * transfersizeinbytes = bytespersecond
         then
             iops = bytespersecond / transfersizeinbytes
+
+    bytespersecond =
 """
 
 import time
@@ -76,7 +78,9 @@ class DiskRobIOt:
         start_time = time.perf_counter()
         self._file_write_seq_access(thread_id)
         stop_time = time.perf_counter()
+
         diff = stop_time - start_time
+        print(str(start_time) + " / "+ str(stop_time) + " / " + str(diff))
         output.put(diff)
 
     def _run_reads_seq(self, thread_id, output):
@@ -125,30 +129,32 @@ class DiskRobIOt:
     def _results(self):
         print("Iterations " + str(self.iterations) + " @ " + str(self.blocksize) + 'K blocksize.')
         # now work out write data written
+        self._iops = 0
+        self._mb = 0
         for result in self.results:
             print(str(self._calculate_mb(result)) + ' Mb/sec ' + str(self._calculate_iops(result)) + ' IOPS')
-            
-        """
+
         meanie = mean(self.results)
-        print("Mean: " + str(self._calculate_mb(meanie)) + ' Mb/sec with ' + str(self.blocksize) + 'K blocksize.')
-        print("Mean: " + str(self._calculate_iops(meanie)) + ' IOPS with ' + str(self.blocksize) + 'K blocksize.')
+        print("Mean: " + str(self._calculate_mb(meanie)) + ' Mb/sec ' + str(self._calculate_iops(meanie)) + ' IOPS')
         medie = median(self.results)
-        print("Median: " + str(self._calculate_mb(medie)) + ' Mb/sec with ' + str(self.blocksize) + 'K blocksize.')
-        print("Median: " + str(self._calculate_iops(medie)) + ' IOPS with ' + str(self.blocksize) + 'K blocksize.')
-        """
+        print("Median: " + str(self._calculate_mb(medie)) + ' Mb/sec ' + str(self._calculate_iops(medie)) + ' IOPS')
+        sumie = sum(self.results)
+        print("Sum: " + str(self._calculate_mb(sumie)) + ' Mb/sec ' + str(self._calculate_iops(sumie)) + ' IOPS')
+        print("Cumulative: " + str(self._mb) + ' Mb/sec ' + str(self._iops) + ' IOPS')
 
     def _calculate_mb(self, result):
-        run_ratio = 1 / result
-        run = run_ratio * self.file_size
-        mb = run / 1024 / 1024
+        print(result)
+        run_ratio = self.file_size / result
+        #run = run_ratio * self.file_size
+        mb = run_ratio / 1024 / 1024
+        self._mb = self._mb + mb
         return mb
 
     def _calculate_iops(self, result):
-        print(result)
-        run_ratio = 1 / result
-        run = run_ratio * self.file_size
-        print(run)
-        iops = run / self.file_size
+        run_ratio = self.file_size / result
+        #run = run_ratio * self.file_size
+        iops = run_ratio / self.file_size
+        self._iops = self._iops + iops
         return iops
 
     def _cleanup(self):
@@ -162,6 +168,6 @@ if __name__ == '__main__':
     parser.add_argument('--blocksize', default='64', help='The blocksize to write. Defaults to 64(k)')
     parser.add_argument('--iterations', default='100', help='The number of iterations of chunked writes. Defaults to 100')
     parser.add_argument('--threads', default='1', help='The number of threads. Defaults to single threaded.')
-    parser.add_argument('--cleanup', default='1', help='Deleted files created for testing. Default is False.')
+    parser.add_argument('--cleanup', default='False', help='Deleted files created for testing. Default is False.')
     args = parser.parse_args()
     dr = DiskRobIOt(args)
