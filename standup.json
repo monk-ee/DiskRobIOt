@@ -1,168 +1,131 @@
 {
-    "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Comments",
+    "AWSTemplateFormatVersion": "2010-09-09", 
+    "Description": "Comments", 
     "Outputs": {
         "InstanceId": {
-            "Description": "InstanceId of the newly created EC2 instance",
+            "Description": "InstanceId of the newly created EC2 instance", 
             "Value": {
                 "Ref": "TestIO"
             }
-        },
+        }, 
         "PrivateDNS": {
-            "Description": "Private DNSName of the newly created EC2 instance",
+            "Description": "Private DNSName of the newly created EC2 instance", 
             "Value": {
                 "Fn::GetAtt": [
-                    "TestIO",
+                    "TestIO", 
                     "PrivateDnsName"
                 ]
             }
-        },
+        }, 
         "PrivateIP": {
-            "Description": "Private IP address of the newly created EC2 instance",
+            "Description": "Private IP address of the newly created EC2 instance", 
             "Value": {
                 "Fn::GetAtt": [
-                    "TestIO",
+                    "TestIO", 
                     "PrivateIp"
                 ]
             }
         }
-    },
+    }, 
     "Resources": {
         "EIP": {
             "Properties": {
-                "Domain": "vpc",
+                "Domain": "vpc", 
                 "InstanceId": {
                     "Ref": "TestIO"
                 }
-            },
+            }, 
             "Type": "AWS::EC2::EIP"
-        },
+        }, 
         "TestIO": {
             "Metadata": {
                 "AWS::CloudFormation::Init": {
-                    "CFNSetup": {
-                        "files": {
-                            "c:\\cfn\\cfn-hup.conf": {
-                                "content": "[main]\n                            stack=TestIOStack\n                            region=ap-southeast-2"
-                            },
-                            "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf": {
-                                "content": "[cfn-auto-reloader-hook]\n                            triggers=post.update\n                            path=Resources.TestIO.Metadata.AWS::CloudFormation::Init\n                           action=cfn-init.exe -v -s TestIOStack -r TestIO --region ap-southeast-2"
-                            }
-                        },
-                        "services": {
-                            "windows": {
-                                "cfn-hup": {
-                                    "enabled": "true",
-                                    "ensureRunning": "true",
-                                    "files": [
-                                        "c:\\cfn\\cfn-hup.conf",
-                                        "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"
-                                    ]
-                                }
-                            }
-                        }
-                    },
                     "InitRAID": {
                         "commands": {
                             "1-initialize-raid-1": {
-                                "command": "diskpart /s C:\\cfn\\scripts\\striperaidebs.txt",
+                                "command": "diskpart /s C:\\cfn\\scripts\\striperaidebs.txt", 
                                 "waitAfterCompletion": 0
-                            },
+                            }, 
                             "1-initialize-raid-2": {
-                                "command": "diskpart /s C:\\cfn\\scripts\\striperaidephemeral.txt",
+                                "command": "diskpart /s C:\\cfn\\scripts\\striperaidephemeral.txt", 
                                 "waitAfterCompletion": 0
                             }
-                        },
+                        }, 
                         "files": {
                             "C:\\cfn\\scripts\\striperaidebs.txt": {
                                 "content": "select disk 1\n                            clean\n                            convert dynamic\n                            select disk 2\n                            clean\n                            convert dynamic\n                            create volume stripe disk=1,2\n                            select volume 1\n                            assign letter=D\n                            format fs=ntfs quick"
-                            },
+                            }, 
                             "C:\\cfn\\scripts\\striperaidephemeral.txt": {
-                                "content": "select disk 3\n                            clean\n                            convert dynamic\n                            select disk 4\n                            clean\n                            convert dynamic\n                            create volume stripe disk=3,24\n                            select volume 2\n                            assign letter=E\n                            format fs=ntfs quick"
+                                "content": "select disk 2\n                            clean\n                            convert dynamic\n                            select disk 3\n                            clean\n                            convert dynamic\n                            create volume stripe disk=2,3\n                            select volume 2\n                            assign letter=E\n                            format fs=ntfs quick"
                             }
                         }
-                    },
+                    }, 
                     "TestIO": {
                         "files": {
                             "C:\\cfn\\scripts\\DiskRobIOt.zip": "https://github.com/monk-ee/DiskRobIOt/archive/master.zip"
-                        },
+                        }, 
                         "packages": {
                             "msi": "https://www.python.org/ftp/python/3.4.2/python-3.4.2.amd64.msi"
                         }
-                    },
+                    }, 
                     "configSets": {
                         "config": [
-                            "ec2config",
-                            "CFNSetup",
-                            "InitRAID",
+                            "InitRAID", 
                             "TestIO"
                         ]
-                    },
-                    "ec2config": {
-                        "commands": {
-                            "1-execute-powershell-script-PSEC2CONFIG": {
-                                "command": "powershell.exe -ExecutionPolicy  Unrestricted  C:\\cfn\\scripts\\PSEC2CONFIG.ps1",
-                                "waitAfterCompletion": 0
-                            }
-                        },
-                        "files": {
-                            "C:\\cfn\\scripts\\PSEC2CONFIG.ps1": {
-                                "content": "$EC2SettingsFile=\"C:\\Program Files\\Amazon\\Ec2ConfigService\\Settings\\Config.xml\"\n                            $xml = [xml](get-content $EC2SettingsFile)\n                            $xmlElement = $xml.get_DocumentElement()\n                            $xmlElementToModify = $xmlElement.Plugins\n                            foreach ($element in $xmlElementToModify.Plugin) {\n                                if ($element.name -eq \"Ec2InitializeDrives\") {\n                                    $element.State=\"Disabled\"\n                                }\n                                if ($element.name -eq \"Ec2SetDriveLetter\")\n                                    $element.State=\"Disabled\"\n                                }\n                            }\n                            $xml.Save($EC2SettingsFile)"
-                            }
-                        }
                     }
                 }
-            },
+            }, 
             "Properties": {
                 "BlockDeviceMappings": [
                     {
-                        "DeviceName": "/dev/xvda",
+                        "DeviceName": "/dev/xvda", 
                         "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": "40",
+                            "DeleteOnTermination": "true", 
+                            "VolumeSize": "40", 
                             "VolumeType": "gp2"
                         }
-                    },
+                    }, 
                     {
-                        "DeviceName": "/dev/xvdb",
+                        "DeviceName": "/dev/xvdb", 
                         "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": "40",
+                            "DeleteOnTermination": "true", 
+                            "VolumeSize": "40", 
                             "VolumeType": "gp2"
                         }
                     }
-                ],
-                "IamInstanceProfile": "IAM-EC2-Default",
-                "ImageId": "ami-e95c31d3",
-                "InstanceType": "m3.xlarge",
-                "KeyName": "IOTEST",
-                "Monitoring": "false",
+                ], 
+                "IamInstanceProfile": "IAM-EC2-Default", 
+                "ImageId": "ami-e95c31d3", 
+                "InstanceType": "m3.xlarge", 
+                "KeyName": "IOTEST", 
+                "Monitoring": "false", 
                 "SecurityGroupIds": [
                     "sg-02b36667"
-                ],
-                "SubnetId": "subnet-cb5facae",
+                ], 
+                "SubnetId": "subnet-cb5facae", 
                 "Tags": [
                     {
-                        "Key": "Comment",
+                        "Key": "Comment", 
                         "Value": "Comments"
-                    },
+                    }, 
                     {
-                        "Key": "Environment",
+                        "Key": "Environment", 
                         "Value": "Development"
-                    },
+                    }, 
                     {
-                        "Key": "Name",
+                        "Key": "Name", 
                         "Value": "windows-2012-test"
-                    },
+                    }, 
                     {
-                        "Key": "Role",
+                        "Key": "Role", 
                         "Value": "IAM-EC2-Default"
                     }
-                ],
+                ], 
                 "UserData": {
-                    "Fn::Base64": "<script> cfn-init -v -s  TestIOStack -r TestIO  --region ap-southeast-2 </script>"
+                    "Fn::Base64": "<script> cfn-init -v -s  TestIOStack -r TestIO  --region ap-southeast-2  --configset config</script>"
                 }
-            },
+            }, 
             "Type": "AWS::EC2::Instance"
         }
     }

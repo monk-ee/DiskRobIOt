@@ -93,59 +93,7 @@ class StandUp:
 
     def metadata(self):
         m = MetadataObject()
-        m.add_configkeys('AWS::CloudFormation::Init', 'configSets', 'config',
-                         ["ec2config", "CFNSetup", "InitRAID", "TestIO"])
-        m.add_configkeys('AWS::CloudFormation::Init', 'ec2config', 'files', {
-            'C:\\cfn\\scripts\\PSEC2CONFIG.ps1': {
-                'content': """$EC2SettingsFile="C:\\Program Files\\Amazon\\Ec2ConfigService\\Settings\\Config.xml"
-                            $xml = [xml](get-content $EC2SettingsFile)
-                            $xmlElement = $xml.get_DocumentElement()
-                            $xmlElementToModify = $xmlElement.Plugins
-                            foreach ($element in $xmlElementToModify.Plugin) {
-                                if ($element.name -eq "Ec2InitializeDrives") {
-                                    $element.State="Disabled"
-                                }
-                                if ($element.name -eq "Ec2SetDriveLetter")
-                                    $element.State="Disabled"
-                                }
-                            }
-                            $xml.Save($EC2SettingsFile)"""
-            }
-        }
-        )
-        m.add_configkeys('AWS::CloudFormation::Init', 'ec2config', 'commands', {
-            '1-execute-powershell-script-PSEC2CONFIG': {
-                'command': """powershell.exe -ExecutionPolicy  Unrestricted  C:\\cfn\\scripts\\PSEC2CONFIG.ps1""",
-                'waitAfterCompletion': 0
-            }
-        }
-        )
-        m.add_configkeys('AWS::CloudFormation::Init', 'CFNSetup', 'files', {
-            "c:\\cfn\\cfn-hup.conf": {
-                "content": """[main]
-                            stack=""" + self.stackname + """
-                            region=""" + self.region
-            },
-            "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf": {
-                "content": """[cfn-auto-reloader-hook]
-                            triggers=post.update
-                            path=Resources.""" + self.instance_template +
-                           """.Metadata.AWS::CloudFormation::Init
-                           action=cfn-init.exe -v -s """ + self.stackname + """ -r """ +
-                           self.instance_template + """ --region """ + self.region
-            }
-        }
-        )
-        m.add_configkeys('AWS::CloudFormation::Init', 'CFNSetup', 'services', {
-            "windows": {
-                "cfn-hup": {
-                    "enabled": "true",
-                    "ensureRunning": "true",
-                    "files": ["c:\\cfn\\cfn-hup.conf", "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"]
-                }
-            }
-        }
-        )
+
         m.add_configkeys('AWS::CloudFormation::Init', 'InitRAID', 'files', {
             "C:\\cfn\\scripts\\striperaidebs.txt": {
                 "content": """select disk 1
@@ -160,13 +108,13 @@ class StandUp:
                             format fs=ntfs quick"""
             },
             "C:\\cfn\\scripts\\striperaidephemeral.txt": {
-                "content": """select disk 3
+                "content": """select disk 2
                             clean
                             convert dynamic
-                            select disk 4
+                            select disk 3
                             clean
                             convert dynamic
-                            create volume stripe disk=3,24
+                            create volume stripe disk=2,3
                             select volume 2
                             assign letter=E
                             format fs=ntfs quick"""
@@ -193,6 +141,9 @@ class StandUp:
                 """https://github.com/monk-ee/DiskRobIOt/archive/master.zip"""
         }
         )
+        m.add_configkeys('AWS::CloudFormation::Init', 'configSets', 'config',
+                         ["InitRAID", "TestIO"]
+        )
         return m
 
     def build(self):
@@ -209,7 +160,7 @@ class StandUp:
             SecurityGroupIds=self.securitygroups,
             Monitoring=self.monitoring,
             IamInstanceProfile=self.iamrole,
-            UserData=Base64("""<script> cfn-init -v -s  """ + self.stackname + """ -r """ + self.instance_template + """  --region """ + self.region + """ </script>"""),
+            UserData=Base64("""<script> cfn-init -v -s  """ + self.stackname + """ -r """ + self.instance_template + """  --region """ + self.region + """  --configset config</script>"""),
             Metadata=m.JSONrepr(),
             BlockDeviceMappings=[
                 ec2.BlockDeviceMapping(
