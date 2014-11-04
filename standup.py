@@ -85,10 +85,13 @@ class StandUp:
 
     def __init__(self):
         self.build()
-        self.output()
+        self.output_to_file()
 
-    def output(self):
+    def output_to_file(self):
         output = self.template.to_json()
+        fd =  open('standup.json', 'w')
+        fd.write(output)
+        fd.close()
         print(output)
 
     def metadata(self):

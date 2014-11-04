@@ -45,15 +45,11 @@
                             "1-initialize-raid-1": {
                                 "command": "diskpart /s C:\\cfn\\scripts\\striperaidebs.txt", 
                                 "waitAfterCompletion": 0
-                            }, 
-                            "1-initialize-raid-2": {
-                                "command": "diskpart /s C:\\cfn\\scripts\\striperaidephemeral.txt", 
-                                "waitAfterCompletion": 0
                             }
                         }, 
                         "files": {
                             "C:\\cfn\\scripts\\striperaidebs.txt": {
-                                "content": "select disk 1\n                            clean\n                            convert dynamic\n                            select disk 2\n                            clean\n                            convert dynamic\n                            create volume stripe disk=1,2\n                            select volume 1\n                            assign letter=D\n                            format fs=ntfs quick"
+                                "content": "select disk 1\n                            clean\n                            convert dynamic\n                            select disk 2\n                            clean\n                            convert dynamic\n                            create volume stripe disk=1,2\n                            select volume 0\n                            assign letter=D\n                            format fs=ntfs quick"
                             }, 
                             "C:\\cfn\\scripts\\striperaidephemeral.txt": {
                                 "content": "select disk 2\n                            clean\n                            convert dynamic\n                            select disk 3\n                            clean\n                            convert dynamic\n                            create volume stripe disk=2,3\n                            select volume 2\n                            assign letter=E\n                            format fs=ntfs quick"
