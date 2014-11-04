@@ -103,7 +103,7 @@ class StandUp:
                             clean
                             convert dynamic
                             create volume stripe disk=1,2
-                            select volume 1
+                            select volume 0
                             assign letter=D
                             format fs=ntfs quick"""
             },
@@ -124,10 +124,6 @@ class StandUp:
         m.add_configkeys('AWS::CloudFormation::Init', 'InitRAID', 'commands', {
             "1-initialize-raid-1": {
                 "command": """diskpart /s C:\\cfn\\scripts\\striperaidebs.txt""",
-                "waitAfterCompletion": 0
-            },
-            "1-initialize-raid-2": {
-                "command": """diskpart /s C:\\cfn\\scripts\\striperaidephemeral.txt""",
                 "waitAfterCompletion": 0
             }
         }
