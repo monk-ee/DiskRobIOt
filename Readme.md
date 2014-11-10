@@ -11,3 +11,33 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
+
+    usage: DiskRobIOt.py [-h] [--blocksize BLOCKSIZE]
+
+                         [--fileiterations FILEITERATIONS]
+
+                         [--iterations ITERATIONS] [--path PATH]
+
+
+    A utility for testing disk io.
+
+    optional arguments:
+
+    -h, --help            show this help message and exit
+
+    --blocksize BLOCKSIZE
+
+                            The blocksize to write. Defaults to 64(k)
+
+    --fileiterations FILEITERATIONS
+
+                            The number of iterations of chunked writes. Defaults
+
+                            to 100
+
+    --iterations ITERATIONS
+
+                           The number of times to run the test. Defaults to 100
+
+    --path PATH               The path to run the test
