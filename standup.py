@@ -147,17 +147,17 @@ class StandUp:
             }
         )
         m.add_configkeys('AWS::CloudFormation::Init', 'TestIO', 'files', {
-            "C:\\cfn\\scripts\\DiskRobIOt.zip":
+            "C:\\cfn\\scripts\\DiskRobIOt.py":
                 """https://raw.githubusercontent.com/monk-ee/DiskRobIOt/master/DiskRobIOt.py"""
         }
         )
         m.add_configkeys('AWS::CloudFormation::Init', 'TestIO', 'commands', {
                 "1-python-path": {
-                    "command": """setx path "%path%;C:\Python34" """,
+                    "command": """setx path "%path%;C:\\Python34" """,
                     "waitAfterCompletion": 0
                 },
                 "2-run-disktest": {
-                    "command": """ c:\cfn\scripts\DiskRobIOt.py -- --path e:\ """,
+                    "command": """c:\\cfn\\scripts\DiskRobIOt.py --path e:\\ """,
                     "waitAfterCompletion": 0
                 }
             }

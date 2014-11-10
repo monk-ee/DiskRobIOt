@@ -57,8 +57,18 @@
                         }
                     }, 
                     "TestIO": {
+                        "commands": {
+                            "1-python-path": {
+                                "command": "setx path \"%path%;C:\\Python34\" ", 
+                                "waitAfterCompletion": 0
+                            }, 
+                            "2-run-disktest": {
+                                "command": "c:\\cfn\\scripts\\DiskRobIOt.py --path e:\\ ", 
+                                "waitAfterCompletion": 0
+                            }
+                        }, 
                         "files": {
-                            "C:\\cfn\\scripts\\DiskRobIOt.zip": "https://github.com/monk-ee/DiskRobIOt/archive/master.zip"
+                            "C:\\cfn\\scripts\\DiskRobIOt.py": "https://raw.githubusercontent.com/monk-ee/DiskRobIOt/master/DiskRobIOt.py"
                         }, 
                         "packages": {
                             "msi": {
