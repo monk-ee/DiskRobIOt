@@ -46,12 +46,14 @@ class DiskRobIOt:
     file_size = 0
     cleanup = False
     chunk = ""
+    path = ""
 
     def __init__(self, arg):
         try:
             self.blocksize = int(arg.blocksize)
             self.iterations = int(arg.iterations)
             self.file_iterations = int(arg.fileiterations)
+            self.path = str(arg.path)
         except:
             raise
         self.file_size = 1024 * self.blocksize * self.file_iterations
@@ -109,7 +111,7 @@ class DiskRobIOt:
 
     def _file_write_seq_access(self, thread_id, name="write"):
         chunk = b'\xff' * 1024 * self.blocksize
-        with open(name + "file" + str(thread_id) + ".file", "wb", 0) as f:
+        with open(self.path + name + "file" + str(thread_id) + ".file", "wb", 0) as f:
             for i in range(self.file_iterations):
                 f.write(chunk)
                 f.flush()
@@ -121,7 +123,7 @@ class DiskRobIOt:
     """
     def _raw_file_write_seq_access(self, thread_id, name="write"):
         chunkblock = b'\xff' * 1024 * self.blocksize
-        with open(name + "file" + str(thread_id) + ".file", "wb", buffering=0) as f:
+        with open(self.path + name + "file" + str(thread_id) + ".file", "wb", buffering=0) as f:
             for i in range(self.file_iterations):
                 f.write(chunkblock)
                 f.flush()
@@ -131,7 +133,7 @@ class DiskRobIOt:
     def _raw_file_read_seq_access(self, thread_id):
         locations = list(range(0, self.file_iterations))
         for position in locations:
-            f = open("readfile" + str(thread_id) + ".file", "rb", buffering=0)
+            f = open(self.path + "readfile" + str(thread_id) + ".file", "rb", buffering=0)
             f.seek((self.chunk * position), 0)
             piece = f.read(self.chunk)
             f.close()
@@ -142,7 +144,7 @@ class DiskRobIOt:
         locations = list(range(0, self.file_iterations))
         shuffle(locations)
         for position in locations:
-            f = open("readfile" + str(thread_id) + ".file", "rb", buffering=0)
+            f = open(self.path + "readfile" + str(thread_id) + ".file", "rb", buffering=0)
             f.seek((self.chunk * position), 0)
             piece = f.read(self.chunk)
             f.close()
@@ -187,6 +189,7 @@ if __name__ == '__main__':
     parser.add_argument('--fileiterations', default='100',
                         help='The number of iterations of chunked writes. Defaults to 100')
     parser.add_argument('--iterations', default='100', help='The number of times to run the test. Defaults to 100')
+    parser.add_argument('--path', default='', help='The path to run the test')
 
     args = parser.parse_args()
     dr = DiskRobIOt(args)
