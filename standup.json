@@ -49,7 +49,7 @@
                         }, 
                         "files": {
                             "C:\\cfn\\scripts\\striperaidebs.txt": {
-                                "content": "select disk 1\n                            clean\n                            convert dynamic\n                            select disk 2\n                            clean\n                            convert dynamic\n                            create volume stripe disk=1,2\n                            select volume 1\n                            assign letter=e\n                            format fs=ntfs quick"
+                                "content": "select disk 1\n                            clean\n                            convert dynamic\n                            select disk 2\n                            clean\n                            convert dynamic\n                            create volume stripe disk=1,2\n                            select volume 0\n                            assign letter=e\n                            format fs=ntfs quick"
                             }, 
                             "C:\\cfn\\scripts\\striperaidephemeral.txt": {
                                 "content": "select disk 2\n                            clean\n                            convert dynamic\n                            select disk 3\n                            clean\n                            convert dynamic\n                            create volume stripe disk=2,3\n                            select volume 2\n                            assign letter=E\n                            format fs=ntfs quick"
@@ -78,7 +78,7 @@
                         "DeviceName": "/dev/xvda", 
                         "Ebs": {
                             "DeleteOnTermination": "true", 
-                            "VolumeSize": "45", 
+                            "VolumeSize": "30", 
                             "VolumeType": "gp2"
                         }
                     }, 

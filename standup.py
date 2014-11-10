@@ -106,7 +106,7 @@ class StandUp:
                             clean
                             convert dynamic
                             create volume stripe disk=1,2
-                            select volume 1
+                            select volume 0
                             assign letter=e
                             format fs=ntfs quick"""
             },
@@ -166,7 +166,7 @@ class StandUp:
                     DeviceName="/dev/xvda",
                     Ebs=ec2.EBSBlockDevice(
                         DeleteOnTermination=True,
-                        VolumeSize="45",
+                        VolumeSize="30",
                         VolumeType="gp2",
                     ),
                 ),
