@@ -163,12 +163,12 @@ class StandUp:
             Metadata=m.JSONrepr(),
             BlockDeviceMappings=[
                 ec2.BlockDeviceMapping(
-                    DeviceName="/dev/xvda",
-                    Ebs=ec2.EBSBlockDevice(
-                        DeleteOnTermination=True,
-                        VolumeSize="30",
-                        VolumeType="gp2",
-                    ),
+                    DeviceName="/dev/xvdca",
+                    VirtualName="ephemeral0",
+                ),
+                ec2.BlockDeviceMapping(
+                    DeviceName="/dev/xvdcb",
+                    VirtualName="ephemeral1",
                 ),
                 ec2.BlockDeviceMapping(
                     DeviceName="/dev/xvdb",
