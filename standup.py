@@ -106,8 +106,8 @@ class StandUp:
                             clean
                             convert dynamic
                             create volume stripe disk=1,2
-                            select volume 0
-                            assign letter=D
+                            select volume 1
+                            assign letter=e
                             format fs=ntfs quick"""
             },
             "C:\\cfn\\scripts\\striperaidephemeral.txt": {
@@ -166,7 +166,7 @@ class StandUp:
                     DeviceName="/dev/xvda",
                     Ebs=ec2.EBSBlockDevice(
                         DeleteOnTermination=True,
-                        VolumeSize="40",
+                        VolumeSize="45",
                         VolumeType="gp2",
                     ),
                 ),
@@ -174,7 +174,15 @@ class StandUp:
                     DeviceName="/dev/xvdb",
                     Ebs=ec2.EBSBlockDevice(
                         DeleteOnTermination=True,
-                        VolumeSize="40",
+                        VolumeSize="45",
+                        VolumeType="gp2"
+                    ),
+                ),
+                ec2.BlockDeviceMapping(
+                    DeviceName="/dev/xvdc",
+                    Ebs=ec2.EBSBlockDevice(
+                        DeleteOnTermination=True,
+                        VolumeSize="45",
                         VolumeType="gp2"
                     ),
                 )
