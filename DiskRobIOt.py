@@ -52,6 +52,7 @@ import multiprocessing
 from random import shuffle
 import os
 from statistics import mean, median
+import json
 
 
 class DiskRobIOt:
@@ -63,6 +64,7 @@ class DiskRobIOt:
     cleanup = False
     chunk = ""
     path = ""
+    output = ""
 
     def __init__(self, arg):
         try:
@@ -93,7 +95,7 @@ class DiskRobIOt:
             p.join()
         # Get process results from the output queue
         self.results = [self.output.get() for p in self.processes]
-        self._results()
+        return self._results()
 
     def prep_read_files(self, random, sequential):
         for count in range(random):
@@ -172,19 +174,32 @@ class DiskRobIOt:
     """
 
     def _results(self):
-        print("Iterations " + str(self.iterations) + " @ " + str(self.blocksize) + 'K blocksize with ' + str(
-            self.file_size / 1024 / 1024) + 'Mb File.')
-        # now work out write data written
-        self._iops = 0
-        self._mb = 0
-        for result in self.results:
-            print(str(self._calculate_mb(result)) + ' Mb/sec ' + str(self._calculate_iops(result)) + ' IOPS')
-
+        output = {}
+        output["parameters"] = {"iterations": self.iterations, "blocksize": self.blocksize, "filesize": self.file_size}
+        output["results"] = {}
+        output["results"]["raw"] = {}
+        for counter, result in enumerate(self.results):
+            output["results"]["raw"]["r_" + str(counter)] = {}
+            output["results"]["raw"]["r_" + str(counter)]["mb"] = self._calculate_mb(result)
+            output["results"]["raw"]["r_" + str(counter)]["iops"] = self._calculate_iops(result)
         meanie = mean(self.results)
-        print("Mean: " + str(self._calculate_mb(meanie)) + ' Mb/sec ' + str(self._calculate_iops(meanie)) + ' IOPS')
-        medie = median(self.results)
-        print("Median: " + str(self._calculate_mb(medie)) + ' Mb/sec ' + str(self._calculate_iops(medie)) + ' IOPS')
+        output["results"]["mean"] = {}
+        output["results"]["mean"]["mb"] = self._calculate_mb(meanie)
+        output["results"]["mean"]["iops"] = self._calculate_iops(meanie)
 
+        medie = median(self.results)
+        output["results"]["median"] = {}
+        output["results"]["median"]["mb"] = self._calculate_mb(medie)
+        output["results"]["median"]["iops"] = self._calculate_iops(medie)
+
+        self.output = output
+        return json.dumps(output)
+
+    def json_output(self):
+        return json.dumps(self.output)
+
+    def print_json_output(self):
+        print(self.json_output())
 
     def _calculate_mb(self, result):
         run_ratio = 1 / (result / self.iterations)
@@ -209,3 +224,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     dr = DiskRobIOt(args)
+    dr.print_json_output()
