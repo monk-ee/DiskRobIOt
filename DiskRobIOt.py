@@ -1,4 +1,4 @@
-#!/usr/bin/env python -u
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 __author__ = 'Monkee Magic <magic.monkee.magic@gmail.com>'
 __version__ = '0.0.1'
@@ -113,7 +113,7 @@ class DiskRobIOt:
         if 'perf_counter' in dir(time):
             stop_time = time.perf_counter()
         else:
-            stop_time =time.clock()
+            stop_time = time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
@@ -127,7 +127,7 @@ class DiskRobIOt:
         if 'perf_counter' in dir(time):
             stop_time = time.perf_counter()
         else:
-            stop_time =time.clock()
+            stop_time = time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
@@ -141,7 +141,7 @@ class DiskRobIOt:
         if 'perf_counter' in dir(time):
             stop_time = time.perf_counter()
         else:
-            stop_time =time.clock()
+            stop_time = time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
@@ -220,10 +220,12 @@ class DiskRobIOt:
         print(self.json_output())
 
     def _calculate_mb(self, result):
-        run_ratio = 1 / (result / self.iterations)
-        run = run_ratio * self.file_size
-        mb = run / 1024 / 1024
-        return mb
+        try:
+            mbs = (self.file_size / 1024 /1024) / result
+        except Exception, e:
+            print("The iterations were not enough to calculate a result: " + str(e))
+            sys.exit()
+        return mbs
 
     def _calculate_iops(self, result):
         run_ratio = 1 / (result / self.iterations)
