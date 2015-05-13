@@ -198,16 +198,16 @@ class DiskRobIOt:
         output["results"]["raw"] = {}
         for counter, result in enumerate(self.results):
             output["results"]["raw"]["r_" + str(counter)] = {}
-            output["results"]["raw"]["r_" + str(counter)]["mb"] = self._calculate_mb(result)
+            output["results"]["raw"]["r_" + str(counter)]["mb"] = self._calculate_mbps(result)
             output["results"]["raw"]["r_" + str(counter)]["iops"] = self._calculate_iops(result)
         meanie = mean(self.results)
         output["results"]["mean"] = {}
-        output["results"]["mean"]["mb"] = self._calculate_mb(meanie)
+        output["results"]["mean"]["mb"] = self._calculate_mbps(meanie)
         output["results"]["mean"]["iops"] = self._calculate_iops(meanie)
 
         medie = median(self.results)
         output["results"]["median"] = {}
-        output["results"]["median"]["mb"] = self._calculate_mb(medie)
+        output["results"]["median"]["mb"] = self._calculate_mbps(medie)
         output["results"]["median"]["iops"] = self._calculate_iops(medie)
 
         self.output = output
@@ -219,18 +219,27 @@ class DiskRobIOt:
     def print_json_output(self):
         print(self.json_output())
 
-    def _calculate_mb(self, result):
+    def _calculate_mbps(self, result):
+        """
+        mbps = file_size_in_mb / timing in seconds
+        :param result:
+        :return:
+        """
         try:
-            mbs = (self.file_size / 1024 /1024) / result
+            mbps = (self.file_size / 1024 /1024) / result
         except Exception, e:
             print("The iterations were not enough to calculate a result: " + str(e))
             sys.exit()
-        return mbs
+        return mbps
 
     def _calculate_iops(self, result):
-        run_ratio = 1 / (result / self.iterations)
-        iops = (run_ratio * self.iterations)
-        # iops = run / self.file_size
+        """
+        IOPS = (MBps Throughput / KB per IO) * 1024
+        :param result:
+        :return:
+        """
+        mbps = self._calculate_mbps(result)
+        iops = (mbps / self.blocksize) * 1024
         return iops
 
 
