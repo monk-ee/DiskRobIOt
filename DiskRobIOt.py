@@ -104,26 +104,44 @@ class DiskRobIOt:
             self._file_write_seq_access(count, "read")
 
     def _run_low_writes(self, thread_id, output):
-        start_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            start_time = time.perf_counter()
+        else:
+            start_time = time.clock()
         for iter in range(self.iterations):
             self._raw_file_write_seq_access(thread_id)
-        stop_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            stop_time = time.perf_counter()
+        else:
+            stop_time =time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
     def _run_reads_seq(self, thread_id, output):
-        start_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            start_time = time.perf_counter()
+        else:
+            start_time = time.clock()
         for iter in range(self.iterations):
             self._raw_file_read_seq_access(thread_id)
-        stop_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            stop_time = time.perf_counter()
+        else:
+            stop_time =time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
     def _run_reads_rand(self, thread_id, output):
-        start_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            start_time = time.perf_counter()
+        else:
+            start_time = time.clock()
         for iter in range(self.iterations):
             self._raw_file_read_random_access(thread_id)
-        stop_time = time.perf_counter()
+        if 'perf_counter' in dir(time):
+            stop_time = time.perf_counter()
+        else:
+            stop_time =time.clock()
         diff = stop_time - start_time
         output.put(diff)
 
